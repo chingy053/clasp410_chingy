@@ -5,4 +5,5 @@ This repository is created for Ching's Fall 2025 Class Earth/Climate 410: Earth 
 Each lab assignment will have its own folder.
 
 # Clone this Respository
+```bash
 git clone https://github.com/chingy053/clasp410_chingy.git
