@@ -1,5 +1,5 @@
 # clasp410_chingy
-This repository is created for Ching's Fall 2025 Class Earth/Climate 410: Earth System Modeling in the University of Michigan. The repository will be used for lab assignments, homework submission, and a final project.
+This repository is created for Ching's Fall 2025 Class Earth/Climate 410: Earth System Modeling in the University of Michigan. The repository will be used for lab assignments, homework submissions, and a final project.
 
 # Repository Structure
 Each lab assignment will be in its own folder.
