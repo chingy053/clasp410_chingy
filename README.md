@@ -7,3 +7,7 @@ Each lab assignment will have its own folder.
 # Clone this Respository
 ```bash
 git clone https://github.com/chingy053/clasp410_chingy.git
+```
+or
+```bash
+git@github.com:chingy053/clasp410_chingy.git
