@@ -10,4 +10,4 @@ git clone https://github.com/chingy053/clasp410_chingy.git
 ```
 or
 ```bash
-git@github.com:chingy053/clasp410_chingy.git
+git clone git@github.com:chingy053/clasp410_chingy.git
