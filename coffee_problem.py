@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 '''
-Solve the voffee problem to learn how to drink coffee effectively
+Solve the coffee problem to learn how to drink coffee effectively
 Tell Sara how to run your code
 '''
 
