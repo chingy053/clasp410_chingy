@@ -70,12 +70,13 @@ ax2.grid(True)
 
 # Subplot #3 = year vs. temperature anamolies
 ax3.axhline(y=0, color="black",linestyle='--', linewidth=1, label='No Anamoly')
-ax3.plot(year,T_anamoly_So_change, color="red", linewidth=2, label='Changing Solar Irradiance')
-ax3.plot(year,t_anom, color="blue", linewidth=2, label='Real Temperature Anamoly Given')
+ax3.plot(year,T_anamoly_So_change, color="red", linewidth=2, label='Predicted Temperature Anamoly\nby Changing Solar Irradiance')
+ax3.plot(year,
+         t_anom, color="blue", linewidth=2, label='Observed Temperature Anamoly')
 ax3.legend()
 ax3.set_xlabel('Years')
 ax3.set_ylabel('Temperature Anamoly (C)')
-ax3.set_ylim(top=0.6)
+ax3.set_ylim(-0.5,1)
 ax3.grid(True)
 plt.rcParams.update({'font.size': 16})
 fig.show()
