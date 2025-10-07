@@ -22,6 +22,9 @@ init_cond = np.arange(0.1,1.0,0.1)
 fig1, axs1 = plt.subplots(2, 2, figsize=(19, 11))
 ax1, ax2, ax3, ax4 = axs1.ravel() 
 
+fig6, axs6 = plt.subplots(2, 2, figsize=(19, 11))
+ax21, ax22, ax23, ax24 = axs6.ravel() 
+
 for i in range(len(init_cond)):
     # ------------> Varying N1 initial condition
     [time_E_Q3_N1,N1_E_Q3_N1,N2_E_Q3_N1] = euler_solve(dNdt_pypdt, N1_init=init_cond[i], dt=0.05, t_final=21.0)
@@ -37,46 +40,104 @@ for i in range(len(init_cond)):
 
     # ---> Euler: Varying N1
     ax1.plot(time_E_Q3_N1, N1_E_Q3_N1, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax1.plot(time_E_Q3_N1, N2_E_Q3_N1, color = def_colors[i], linewidth=2, linestyle = ":", label = f'Initial Population = {init_cond[i]:.2f}')
     ax1.set_ylim(-0.25,2.0)
     ax1.set_xlim(0, 40)
     ax1.set_ylabel('Population/Carrying Cap.')
-    # ax1.legend(loc='best')
+    ax1.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax1.set_title('Predator-Prey Model using Euler: Varying N1')
     ax1.grid(True)
 
     # ---> RK8: Varying N1
-    ax2.plot(time_R_Q3_N1, N2_R_Q3_N1, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax2.plot(time_R_Q3_N1, N1_R_Q3_N1, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax2.plot(time_R_Q3_N1, N2_R_Q3_N1, color = def_colors[i], linewidth=2, linestyle = ":", label = f'Initial Population = {init_cond[i]:.2f}')
     ax2.set_ylim(-0.25,2.0)
     ax2.set_xlim(0, 40)
     ax2.set_ylabel('Population/Carrying Cap.')
-    # ax2.legend(loc='best')
+    ax2.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax2.set_title('Predator-Prey Model using RK8: Varying N1')
     ax2.grid(True)
 
     # ---> Euler: Varying N2
     ax3.plot(time_E_Q3_N2, N1_E_Q3_N2, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax3.plot(time_E_Q3_N2, N2_E_Q3_N2, color = def_colors[i], linewidth=2, linestyle = ":", label = f'Initial Population = {init_cond[i]:.2f}')
     ax3.set_ylim(-0.25,2.0)
     ax3.set_xlim(0, 40)
     ax3.set_xlabel('Time (years)')
     ax3.set_ylabel('Population/Carrying Cap.')
-    # ax3.legend(loc='best')
+    ax3.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")# ax3.legend(loc='best')
     ax3.set_title('Predator-Prey Model using Euler: Varying N2')
     ax3.grid(True)
 
     # ---> RK8: Varying N2
     ax4.plot(time_R_Q3_N2, N2_R_Q3_N2, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax4.plot(time_R_Q3_N2, N1_R_Q3_N2, color = def_colors[i], linewidth=2, linestyle = ":")
     ax4.set_ylim(-0.25,2.0)
     ax4.set_xlim(0, 40)
     ax4.set_xlabel('Time (years)')
     ax4.set_ylabel('Population/Carrying Cap.')
     ax4.set_title('Predator-Prey Model using RK8: Varying N2')
     ax4.legend(loc="best")
+    ax4.text(5, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax4.grid(True)
+
+    #----------------------------Phase Diagram------------------------------
+    # ---> Euler: varying N1
+    ax21.plot(N1_E_Q3_N1, N2_E_Q3_N1, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax21.set_ylim(0, 2.0)
+    ax21.set_xlim(0, 2.0)
+    ax21.set_ylabel('Predator Population (N2)')
+    # ax21.legend(loc='best')
+    ax21.set_title('Predator-Prey Model using Euler: Varying N1')
+    ax21.grid(True)
+
+    # ---> RK8: varying N1
+    ax22.plot(N1_R_Q3_N1, N2_R_Q3_N1, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax22.set_ylim(0, 2.0)
+    ax22.set_xlim(0, 2.0)
+    ax22.set_ylabel('Predator Population (N2)')
+    ax22.legend(loc='best')
+    ax22.set_title('Predator-Prey Model using RK8: Varying N1')
+    ax22.grid(True)
+
+    # ---> Euler: varying N2
+    ax23.plot(N1_E_Q3_N2, N2_E_Q3_N2, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax23.set_ylim(0,2.0)
+    ax23.set_xlim(0,2.0)
+    ax23.set_ylabel('Predator Population (N2)')
+    ax23.set_xlabel('Prey Population (N1)')
+    # ax23.legend(loc='best')
+    ax23.set_title('Predator-Prey Model using Euler: Varying N2')
+    ax23.grid(True)
+
+    # ---> RK8: varying N2
+    ax24.plot(N1_R_Q3_N2, N2_R_Q3_N2, color = def_colors[i], linewidth=2, label = f'Initial Population = {init_cond[i]:.2f}')
+    ax24.set_ylim(0,2.0)
+    ax24.set_xlim(0,2.0)
+    ax24.set_ylabel('Predator Population (N2)')
+    ax24.set_xlabel('Prey Population (N1)')
+    ax24.set_title('Predator-Prey Model using RK8: Varying N2')
+    ax24.grid(True)
+
 
 fig1.suptitle("How do the initial conditions affect the final result and behavior of the two species?", fontsize=24)
 fig1.text(0.5, 0.94, "Coefficients: a = 1, b = 2, c = 1, d = 3, Δt = 1.0", ha='center', va='top', fontsize=16)
 plt.rcParams.update({'font.size': 16})
 fig1.savefig("plot_lab2_4_Q3_f1_Predatorprey_change_initialconditions.png")
+plt.close()
+
+fig6.suptitle("How do the initial conditions affect the final result and behavior of the two species?", fontsize=24)
+fig6.text(0.5, 0.94, "Coefficients: a = 1, b = 2, c = 1, d = 3, Δt = 1.0", ha='center', va='top', fontsize=16)
+plt.rcParams.update({'font.size': 16})
+fig6.savefig("plot_lab2_4_Q3_f6_PhaseDiagram_Predatorprey_change_initialconditions.png")
 plt.close()
 
 #---------------------------------------------------------------
@@ -113,39 +174,52 @@ for g in range(len(coef_vary)):
 
     # ---> Euler: Varying a
     ax5.plot(time_E_Q3_a, N1_E_Q3_a, color = def_colors[g], linewidth=2, label = f'Coefficient = {coef_vary[g]:.2f}')
+    ax5.plot(time_E_Q3_a, N2_E_Q3_a, color = def_colors[g], linewidth=2, linestyle = ":", label = f'Coefficient = {coef_vary[g]:.2f}')
     ax5.set_ylim(-0.25,2.0)
     ax5.set_xlim(0, 40)
     ax5.set_ylabel('Population/Carrying Cap.')
-    # ax5.legend(loc='best')
+    ax5.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax5.set_title('Predator-Prey Model using Euler: Varying a')
     ax5.grid(True)
 
     # ---> Euler: Varying b
     ax6.plot(time_E_Q3_b, N1_E_Q3_b, color = def_colors[g], linewidth=2, label = f'Coefficient = {coef_vary[g]:.2f}')
+    ax6.plot(time_E_Q3_b, N2_E_Q3_b, color = def_colors[g], linewidth=2, linestyle = ":")
     ax6.set_ylim(-0.25,2.0)
     ax6.set_xlim(0, 40)
     ax6.set_ylabel('Population/Carrying Cap.')
     ax6.legend(loc='best')
+    ax6.text(5, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax6.set_title('Predator-Prey Model using Euler: Varying b')
     ax6.grid(True)
 
     # ---> Euler: Varying c
     ax7.plot(time_E_Q3_c, N1_E_Q3_c, color = def_colors[g], linewidth=2, label = f'Coefficient = {coef_vary[g]:.2f}')
+    ax7.plot(time_E_Q3_c, N2_E_Q3_c, color = def_colors[g], linewidth=2, linestyle = ":", label = f'Coefficient = {coef_vary[g]:.2f}')
     ax7.set_ylim(-0.25,2.0)
     ax7.set_xlim(0, 40)
     ax7.set_ylabel('Population/Carrying Cap.')
     ax7.set_xlabel('Time (years)')
-    # ax7.legend(loc='best')
+    ax7.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax7.set_title('Predator-Prey Model using Euler: Varying c')
     ax7.grid(True)
 
     # ---> Euler: Varying d
     ax8.plot(time_E_Q3_d, N1_E_Q3_d, color = def_colors[g], linewidth=2, label = f'Coefficient = {coef_vary[g]:.2f}')
+    ax8.plot(time_E_Q3_d, N2_E_Q3_d, color = def_colors[g], linewidth=2, linestyle = ":", label = f'Coefficient = {coef_vary[g]:.2f}')
     ax8.set_ylim(-0.25,2.0)
     ax8.set_xlim(0, 40)
     ax8.set_ylabel('Population/Carrying Cap.')
     ax8.set_xlabel('Time (years)')
-    # ax8.legend(loc='best')
+    ax8.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax8.set_title('Predator-Prey Model using Euler: Varying d')
     ax8.grid(True)
 
@@ -228,39 +302,52 @@ for k in range(len(coef_vary)):
 
     # ---> RK8: Varying a
     ax9.plot(time_R_Q3_a, N1_R_Q3_a, color = def_colors[k], linewidth=2, label = f'Coefficient = {coef_vary[k]:.2f}')
+    ax9.plot(time_R_Q3_a, N2_R_Q3_a, color = def_colors[k], linewidth=2, linestyle = ":", label = f'Coefficient = {coef_vary[k]:.2f}')
     ax9.set_ylim(-0.25,2.0)
     ax9.set_xlim(0, 40)
     ax9.set_ylabel('Population/Carrying Cap.')
-    # ax9.legend(loc='best')
+    ax9.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax9.set_title('Predator-Prey Model using RK8: Varying a')
     ax9.grid(True)
 
     # ---> RK8: Varying b
     ax10.plot(time_R_Q3_b, N1_R_Q3_b, color = def_colors[k], linewidth=2, label = f'Coefficient = {coef_vary[k]:.2f}')
+    ax10.plot(time_R_Q3_b, N2_R_Q3_b, color = def_colors[k], linewidth=2, linestyle = ":")
     ax10.set_ylim(-0.25,2.0)
     ax10.set_xlim(0, 40)
     ax10.set_ylabel('Population/Carrying Cap.')
     ax10.legend(loc='best')
+    ax10.text(5, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax10.set_title('Predator-Prey Model using RK8: Varying b')
     ax10.grid(True)
 
     # ---> RK8: Varying c
     ax11.plot(time_R_Q3_c, N1_R_Q3_c, color = def_colors[k], linewidth=2, label = f'Coefficient = {coef_vary[k]:.2f}')
+    ax11.plot(time_R_Q3_c, N2_R_Q3_c, color = def_colors[k], linewidth=2, linestyle = ":", label = f'Coefficient = {coef_vary[k]:.2f}')
     ax11.set_ylim(-0.25,2.0)
     ax11.set_xlim(0, 40)
     ax11.set_ylabel('Population/Carrying Cap.')
     ax11.set_xlabel('Time (years)')
-    # ax11.legend(loc='best')
+    ax11.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax11.set_title('Predator-Prey Model using RK8: Varying c')
     ax11.grid(True)
 
     # ---> RK8: Varying d
     ax12.plot(time_R_Q3_d, N1_R_Q3_d, color = def_colors[k], linewidth=2, label = f'Coefficient = {coef_vary[k]:.2f}')
+    ax12.plot(time_R_Q3_d, N2_R_Q3_d, color = def_colors[k], linewidth=2, linestyle = ":", label = f'Coefficient = {coef_vary[k]:.2f}')
     ax12.set_ylim(-0.25,2.0)
     ax12.set_xlim(0, 40)
     ax12.set_ylabel('Population/Carrying Cap.')
     ax12.set_xlabel('Time (years)')
-    # ax12.legend(loc='best')
+    ax12.text(30, 1.7,
+         "Solid line = N1\nDotted line = N2",
+         fontsize=14, color="black")
     ax12.set_title('Predator-Prey Model using RK8: Varying d')
     ax12.grid(True)
 
@@ -298,7 +385,7 @@ for k in range(len(coef_vary)):
     # ax16.set_ylim(-0.25,2.0)
     # ax16.set_xlim(0, 40)
     ax16.set_ylabel('Predator Population (N2)')
-    ax15.set_xlabel('Prey Population (N1)')
+    ax16.set_xlabel('Prey Population (N1)')
     # ax16.legend(loc='best')
     ax16.set_title('Predator-Prey Model using RK8: Varying d')
     ax16.grid(True)
