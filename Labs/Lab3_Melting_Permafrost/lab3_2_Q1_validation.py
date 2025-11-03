@@ -25,6 +25,16 @@ import matplotlib.pyplot as plt
 from lab3_1_functions import solve_heat, plot_heatsolve, temp_kanger
 from tabulate import tabulate
 #---------------------------------------------------------------
+def test_tabulate():
+    '''
+    Test that the tabulate library is installed, imported, and working as intended.
+
+    Parameters: None
+    Returns: None
+    '''
+    A = np.random.randint(0,99,[3,6])
+    print(tabulate(A))
+
 t_1,x_1,U_1 = solve_heat(xstop=1, tstop = 0.2, dx=0.2, dt = 0.02, c2 = 1, lowerbound=0, set_ic = 'validation')
 print("Solution for the example heat equation problem: ")
 print(tabulate(U_1))
