@@ -100,8 +100,7 @@ fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 ax1 = axes[0, 0]
 times_to_plot = [0, 100, 200, 300, 400, 500]
 for time_idx in times_to_plot:
-    if time_idx < N:
-        ax1.plot(x, U[:, time_idx], label=f't = {time_idx}')
+    ax1.plot(x, U[:, time_idx], label=f't = {time_idx}')
 ax1.set_xlabel('x')
 ax1.set_ylabel('u (Temperature)')
 ax1.set_title('Temperature Profile at Different Times')
