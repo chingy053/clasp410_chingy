@@ -6,142 +6,156 @@ This code is based on Feuillebois et al. (1995) Equations 14-23, solving for the
 import numpy as np
 import matplotlib.pyplot as plt 
 
-# def solve_freeze():
-'''
-A function for solving the freezing equation
+def solve_freeze(tstop=5.0, xstop=1.0, dt=1.125e-05, dx=0.005, epsilon=0.01, R=1e-5, rho_s=920.0, c_s=2100.0, k_s=2.2):
+    """
+    Solve the 1-D Stefan freezing problem for a spherical droplet using an
+    explicit forward-difference scheme.
 
-Parameter
---------------
+    Parameters
+    ----------
+    tstop : float
+        Nondimensional time. Default to 5.0.
+    xstop : float
+        Nondimensional spatial domain. Default to 1.0 (starting from the outer shell).
+    dt : float
+        Time step size. Default to 1.125e-05.
+    dx : float
+        Spatial step size, Default to 0.005.
+    epsilon : float
+        Dimensionless parameter. Default to 0.01.
+    R : float
+        Physical radius of droplet (m). Default to 10 micron.
+    rho_s : float
+        Density of solid phase (kg/m^3). Default to 920.0 for ice.
+    c_s : float
+        Specific heat of solid (J/kg/K). Default to 2100.0 for ice.
+    k_s : float
+        Thermal conductivity of solid (W/m/K). Default to 2.2.
 
-Return
---------------
-'''
+    Returns
+    -------
+    t : 1-D array
+        Nondimensional time array from 0 to tstop.
+    x : 1-D array
+        Nondimensional spatial grid from xstop down to 0.
+    U : 2-D array
+        Nondimensional temperature field U(x, t). U = 1 at the outer
+        boundary and U = 0 in the liquid region and at the
+        freezing front.
+    s : 1-D array
+        Nondimensional freezing-front position.
+    r_i : 1-D array
+        Physical freezing front radius.
+    du_dx : 1-D array
+        Spatial derivative of U at the interface.
+    ds_dt : 1-D array
+        Rate of freezing front motion in nondimensional time.
+    t_phys : 1-D array
+        Physical time (s).
+    x_phys : 1-D array
+        Physical radius coordinate (m).
+    t_char : 1-D array
+        Thermal diffusion timescale (s).
+    """
 
-r_e = 75    # Final Radius (micron)
-rho_s = 10  # Mass Density (??)
-C_s = 10    # Specific Heat (??)
-X_s = 10    # Thermal Conductivity (??)
-a_s = 10    # Thermal Diffusivity (??)
+    # Get grid sizes (plus one to include "0" as well)
+    N = int(tstop/dt)+1
+    M = int(xstop/dx)+1
 
-# Characteristic time: for heat to diffuse across the droplet
-t_star_k = r_e**2*rho_s*C_s/X_s 
-#------------------------------------------------------------
-#              Ignore whatever constant is above
-#------------------------------------------------------------
-tstop = 500
-xstop = 10
-dt = 1
-dx = 1
+    # Set up space and time grid
+    t = np.linspace(0, tstop, N)
+    x = np.linspace(xstop, 0, M) # x go from 1 to 0 instead
 
-# Get grid sizes (plus one to include "0" as well)
-N = int(tstop/dt)+1
-M = int(xstop/dx)+1
+    # Set s
+    s = np.zeros(N)
+    s[0] = 1.0
 
-# Set up space and time grid
-t = np.linspace(0, tstop, N)
-x = np.linspace(0, xstop, M)
+    # Create solution matrix; set initial condition
+    U = np.zeros([M, N])
+    # Initial condition:
+    U[:, 0] = 0.0 # when t = 0, s(0) = 1, U(s(t),t) = 0, so U(1,0) = 0. Freezing start point.
+    U[x >= s[0], 0] = 1.0 # when x = 1, U = 1
 
-# Create solution matrix; set initial condition
-U = np.zeros([M, N])
-U[0,:] = 1
+    # Get r_def
+    r_def = epsilon*(dt/dx**2)
 
-# Get r_def
-epsilon = 0.01
-r_def = epsilon*(dt/dx**2)
+    # Set du_dx, ds_dt
+    du_dx = np.zeros(N)
+    ds_dt = np.zeros(N)
 
-# Set s
-s = np.zeros(N)
-s[0] = 1
+    # Radius of the liquid droplet
+    # R is given as function argument
 
-# Radius of the liquid droplet
-R = xstop
+    # Freezing front radius r_i
+    # s = r_i / R
+    r_i = np.zeros(N)
+    r_i[0] = R
 
-# Freezing front radius r_i
-# s = r_i / R
-r_i = np.zeros(N)
-r_i[0] = R
+    # Solve our equation
+    for j in range(N-1):
 
-# Solve our equation
-for j in range(N-1):
-    # Equation [19]: Classic heat diffusion equation
-    U[1:M-1, j+1] = (1-2*r_def)*U[1:M-1,j] + r_def*(U[2:M,j]+U[:M-2,j])
-    
-    # Get index i_s corresponding to s(t) position
-    i_s = int(np.round(s[j] / dx)) # I am not sure if this is correct
-    
-    # Ensure i_s is within bounds
-    if i_s < M - 1 and i_s > 0:
-        # equation [21]: boundary condition u(s(t),t) = 0
-        U[i_s, j+1] = 0
-        
+        # Make a copy of U so the new variable is a 1-D array
+        # This way the values don't overwrite
+        un   = U[:, j].copy()
+        unew = un.copy()
+
+        # Always enforece outer boundary at x = 1, U = 1
+        unew[0] = 1.0
+
+        # Find freezing point index
+        i_s = np.searchsorted(-x, -s[j])   
+        if i_s == 0:
+            i_s = 1
+
+        # Assume liquid region (x < s) T=Tf, u=0
+        unew[i_s:] = 0.0
+
+        # Equation [19]: Classic heat diffusion equation
+        # Only apply to the frozen part for each time step
+        for i in range(1, i_s):
+            unew[i] = ((1 - 2.0 * r_def) * un[i] +
+                       r_def * (un[i+1] + un[i-1]))
+
+        # Equation [21]: boundary condition u(s(t),t) = 0
+        # Freezing front u(s,t)=0 at x[i_s]
+        unew[i_s] = 0.0
+
+        # Save new temperature profile to U
+        U[:, j+1] = unew
+
         # Equation [22]: du/dx|{x=s} = -s(t) * (ds(t)/dt)
         # This is Stefan condition
         # Using backward difference for spatial derivative
-        du_dx = (U[i_s, j] - U[i_s-1, j]) / dx
-        
-        # ds_dt = -du_dx / s(t)
-        if abs(s[j]) > 0:
-            ds_dt = -du_dx / s[j]
+        du_dx[j] = (unew[i_s] - unew[i_s-1]) / (x[i_s] - x[i_s-1])
+
+        if s[j] > 0:
+            ds_dt[j] = -du_dx[j] / s[j]
         else:
-            ds_dt = 0
-        
-        # Update s using forward Euler
-        s[j+1] = s[j] + ds_dt * dt
-    else:
-        s[j+1] = s[j]
+            ds_dt[j] = 0.0
 
-    # Save the freezing front radius as r_i = s * R
-    r_i[j+1] = s[j+1] * R
+        s[j+1] = s[j] + ds_dt[j] * dt
 
-# Plot results
-fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+        # Optional: stop if interface essentially reaches the center
+        if s[j+1] <= dx:
+            s[j+1] = dx
 
-# Plot 1: Temperature profile at different times
-ax1 = axes[0, 0]
-times_to_plot = [0, 100, 200, 300, 400, 500]
-for time_idx in times_to_plot:
-    ax1.plot(x, U[:, time_idx], label=f't = {time_idx}')
-ax1.set_xlabel('x')
-ax1.set_ylabel('u (Temperature)')
-ax1.set_title('Temperature Profile at Different Times')
-ax1.legend()
-ax1.grid(True)
+        # Save the freezing front radius as r_i = s * R
+        r_i[j+1] = s[j+1] * R
 
-# Plot 2: Moving boundary s(t)
-ax2 = axes[0, 1]
-ax2.plot(t, s, 'b-', linewidth=2)
-ax2.set_xlabel('t (Time)')
-ax2.set_ylabel('s(t) (Nondimensional Position)')
-ax2.set_title('Nondimensional Moving Boundary s(t)')
-ax2.grid(True)
+    # ---------------------------------------------------------
+    # Add dimensional quantities
+    # ---------------------------------------------------------
 
-# Plot 3: Freezing front radius r_i(t)
-ax3 = axes[1, 0]
-ax3.plot(t, r_i, 'r-', linewidth=2)
-ax3.axhline(y=R, color='k', linestyle='--', label=f'R = {R} (liquid radius)')
-ax3.set_xlabel('t (Time)')
-ax3.set_ylabel('r_i(t) (Freezing Front Radius)')
-ax3.set_title(f'Freezing Front Radius r_i(t) = s(t) × R')
-ax3.legend()
-ax3.grid(True)
+    # Characteristic thermal diffusion time (from nondimensionalization)
+    t_char = (R**2) * rho_s * c_s / k_s
 
-# Plot 4: Both s(t) and r_i(t) comparison
-ax4 = axes[1, 1]
-ax4_twin = ax4.twinx()
-line1 = ax4.plot(t, s, 'b-', linewidth=2, label='s(t) (nondimensional)')
-line2 = ax4_twin.plot(t, r_i, 'r-', linewidth=2, label='r_i(t) (dimensional)')
-ax4.set_xlabel('t (Time)')
-ax4.set_ylabel('s(t)', color='b')
-ax4_twin.set_ylabel('r_i(t)', color='r')
-ax4.set_title('Comparison: s(t) vs r_i(t)')
-ax4.tick_params(axis='y', labelcolor='b')
-ax4_twin.tick_params(axis='y', labelcolor='r')
-ax4.grid(True)
+    # Physical time array
+    t_phys = t * t_char / epsilon
 
-# Combine legends
-lines1, labels1 = ax4.get_legend_handles_labels()
-lines2, labels2 = ax4_twin.get_legend_handles_labels()
-ax4.legend(lines1 + lines2, labels1 + labels2, loc='best')
+    # Physical spatial grid
+    x_phys = x * R
 
-plt.tight_layout()
-plt.show()
+    return (t, x, U, s, r_i, du_dx, ds_dt,
+            t_phys, x_phys, t_char)
+
+[t_1,x_1,U_1,s_1,r_i_1,du_dx_1, ds_dt_1,t_phys_1, x_phys_1, t_char_1]=solve_freeze()
